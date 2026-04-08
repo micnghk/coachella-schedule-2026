@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#171717">
+    
+    <title>Coachella 2026 HKT</title>
+    <link rel="apple-touch-icon" href="https://play-lh.googleusercontent.com/uWLx3UwVFvhlNBz3Shc4qfhh515qGHrPXteuJluOo9UG-eDlt3CbguTQPV2rcIvMDKbjRYU3VVAUcvTUMqwR=w960-h960-rw">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://play-lh.googleusercontent.com/uWLx3UwVFvhlNBz3Shc4qfhh515qGHrPXteuJluOo9UG-eDlt3CbguTQPV2rcIvMDKbjRYU3VVAUcvTUMqwR=w960-h960-rw">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --col-width: 88px; 
+            --time-col-width: 50px;
+            --header-height-val: 55;
+            --brand-black: #171717;
+            --tab-default: #4d4d4d;
+            --tab-active: #f25623;
+            --block-bg: #dedede;
+            --grid-bg: #f2f2f2;
+            --border-color: #dddddd;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0; padding: 0; background-color: var(--grid-bg); color: var(--brand-black);
+            overflow: hidden; height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased;
+        }
+
+        .brand-header {
+            background: var(--brand-black); display: flex; justify-content: center; align-items: center;
+            padding: 12px 0; padding-top: max(12px, env(safe-area-inset-top)); 
+            z-index: 110; text-transform: uppercase; letter-spacing: 2px;
+        }
+        .brand-logo { height: 18px; width: auto; filter: brightness(0) invert(1); }
+
+        .tabs { display: flex; background: var(--tab-default); z-index: 100; }
+        .tab { 
+            flex: 1; text-align: center; padding: 14px 0; font-weight: 800; font-size: 10px; 
+            color: #ffffff; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .tab.active { background: var(--tab-active) !important; color: var(--brand-black) !important; }
+
+        .stage-header { 
+            position: sticky; top: 0; height: calc(var(--header-height-val) * 1px); display: flex; align-items: center; 
+            justify-content: center; font-weight: 800; font-size: 9px; background: #fff; 
+            border-bottom: 2px solid var(--brand-black); border-right: 1px solid var(--border-color); 
+            z-index: 25; text-align: center; text-transform: uppercase; padding: 0 4px; color: var(--brand-black);
+        }
+
+        .schedule-viewport { flex: 1; overflow: auto; position: relative; -webkit-overflow-scrolling: touch; }
+        .schedule-grid { display: grid; grid-template-columns: var(--time-col-width) repeat(8, var(--col-width)); position: relative; min-width: fit-content; padding-bottom: 120px; }
+
+        .time-header-corner { position: sticky; top: 0; left: 0; z-index: 30; background: #fff; border-bottom: 2px solid var(--brand-black); border-right: 1px solid var(--border-color); width: var(--time-col-width); height: calc(var(--header-height-val) * 1px); }
+        .time-slot { position: sticky; left: 0; background: rgba(255,255,255,0.95); border-right: 1px solid var(--border-color); font-size: 9px; color: #777; text-align: center; z-index: 10; display: flex; flex-direction: column; padding-top: 4px; font-weight: 700; }
+        .grid-line { grid-column: 2 / -1; border-top: 1px solid var(--border-color); pointer-events: none; }
+
+        .artist-block { 
+            margin: 1px 2px; border-radius: 4px; padding: 5px; font-size: 10px; font-weight: 700; 
+            background: var(--block-bg); color: var(--brand-black); overflow: hidden; position: relative; 
+            display: flex; flex-direction: column; justify-content: center; z-index: 1; cursor: pointer; 
+            line-height: 1.1; text-transform: none; 
+        }
+        .schedule-grid.has-wishlist .artist-block { opacity: 0.3; filter: grayscale(1); }
+        .schedule-grid.has-wishlist .artist-block.wishlisted { opacity: 1; filter: none; border: 2px solid var(--tab-active); z-index: 5; }
+        
+        .artist-time { font-size: 8px; opacity: 0.7; margin-bottom: 2px; font-weight: 500; }
+
+        #current-time-line { position: absolute; left: var(--time-col-width); right: 0; height: 2px; background: var(--tab-active); z-index: 20; display: none; pointer-events: none; }
+        #current-time-line::before { content: "NOW"; position: absolute; left: -35px; top: -7px; background: var(--tab-active); color: var(--brand-black); font-size: 8px; padding: 2px 4px; border-radius: 2px; font-weight: 800; }
+
+        .controls { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 200; }
+        .controls button { background: var(--brand-black); color: #fff; border: none; padding: 12px 28px; border-radius: 40px; font-size: 11px; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; text-transform: uppercase; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .modal-box { background: #fff; width: 85%; max-width: 320px; padding: 35px 20px; border-radius: 20px; text-align: center; position: relative; color: var(--brand-black); }
+        .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; line-height: 1.2; }
+        .modal-info { font-size: 13px; color: #666; margin-bottom: 25px; }
+        .modal-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        .btn-modal { display: block; width: 100%; box-sizing: border-box; padding: 16px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 14px; text-decoration: none; text-align: center; }
+        .btn-spotify { background: #1DB954; color: white; }
+        .btn-wishlist { background: var(--brand-black); color: #fff; }
+        .btn-wishlist.remove { background: #d32f2f; }
+        .btn-close { position: absolute; top: 15px; right: 15px; font-size: 24px; color: #ccc; background: none; border: none; cursor: pointer; }
+    </style></head><body>
+
+    <div class="brand-header">
+        <img src="https://media.web.aegpresents.com/content/coachella-2023/logo-coachella.svg" alt="Coachella" class="brand-logo">
+    </div>
+
+    <div class="tabs" id="tabs-container">
+        <div class="tab" onclick="switchDay('Sat')">Sat Apr 11</div>
+        <div class="tab" onclick="switchDay('Sun')">Sun Apr 12</div>
+        <div class="tab" onclick="switchDay('Mon')">Mon Apr 13</div>
+    </div>
+
+    <div class="schedule-viewport" id="viewport">
+        <div class="schedule-grid" id="schedule-container"></div>
+        <div id="current-time-line"></div>
+    </div>
+
+    <div class="controls">
+        <button onclick="clearWishlist()">Reset My Sets</button>
+    </div>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal-box">
+            <button class="btn-close" onclick="closeModal()">×</button>
+            <div class="modal-title" id="m-artist">Artist Name</div>
+            <div class="modal-info" id="m-info">Stage • Time</div>
+            <div class="modal-actions">
+                <a href="#" target="_blank" id="btn-spotify" class="btn-modal btn-spotify">Open Spotify</a>
+                <button id="btn-wishlist" class="btn-modal btn-wishlist" onclick="toggleCurrentWishlist()">Add to My Schedule</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const STAGES = ["Coachella Stage", "Outdoor Theatre", "Sonora", "Gobi", "Mojave", "Sahara", "Yuma", "Quasar"];
+    const GRID_START_HOUR = 4; const GRID_END_HOUR = 20; const PIXELS_PER_MIN = 2.5;
+    const HEADER_HT = 55;
+
+    // ULTIMATE SOURCE DATA
+    const rawData = [
+        // SATURDAY HKT
+        {d:'Sat',s:'Sonora',a:'Doom Dave',t:'04:00-04:40'},{d:'Sat',s:'Sonora',a:'Febuary',t:'04:40-05:10'},{d:'Sat',s:'Sonora',a:'Carolina Durante',t:'05:35-06:15'},{d:'Sat',s:'Sonora',a:'Wednesday',t:'06:40-07:20'},{d:'Sat',s:'Sonora',a:'Fleshwater',t:'07:50-08:30'},{d:'Sat',s:'Sonora',a:'The Two Lips',t:'09:00-09:40'},{d:'Sat',s:'Sonora',a:'Ninajirachi',t:'10:10-11:00'},{d:'Sat',s:'Sonora',a:'Cachirula & Loojan',t:'11:25-12:05'},{d:'Sat',s:'Sonora',a:'Hot Mulligan',t:'13:00-13:45'},{d:'Sat',s:'Sonora',a:'Not For Radio',t:'14:50-15:50'},
+        {d:'Sat',s:'Gobi',a:'Cahuilla Bird Singers',t:'05:15-05:45'},{d:'Sat',s:'Gobi',a:'Bob Baker Marionettes',t:'05:55-06:35'},{d:'Sat',s:'Gobi',a:'NewDad',t:'07:00-07:40'},{d:'Sat',s:'Gobi',a:'Joyce Manor',t:'08:10-08:50'},{d:'Sat',s:'Gobi',a:'CMAT',t:'09:15-09:55'},{d:'Sat',s:'Gobi',a:'fakemink',t:'10:20-11:00'},{d:'Sat',s:'Gobi',a:'Holly Humberstone',t:'11:25-12:10'},{d:'Sat',s:'Gobi',a:'Joost',t:'12:50-13:35'},{d:'Sat',s:'Gobi',a:'Creepy Nuts',t:'14:05-14:55'},
+        {d:'Sat',s:'Mojave',a:'Novasoul',t:'05:00-05:50'},{d:'Sat',s:'Mojave',a:'Slayyyter',t:'06:00-06:45'},{d:'Sat',s:'Mojave',a:'BINI',t:'07:15-08:00'},{d:'Sat',s:'Mojave',a:'Central Cee',t:'08:30-09:15'},{d:'Sat',s:'Mojave',a:'Devo',t:'09:45-10:40'},{d:'Sat',s:'Mojave',a:'Moby',t:'11:10-12:00'},{d:'Sat',s:'Mojave',a:'Ethel Cain',t:'13:35-14:25'},{d:'Sat',s:'Mojave',a:'Blood Orange',t:'14:55-15:45'},
+        {d:'Sat',s:'Sahara',a:'MASSIO',t:'05:30-06:35'},{d:'Sat',s:'Sahara',a:'Youna',t:'06:45-07:35'},{d:'Sat',s:'Sahara',a:'HUGEL',t:'07:50-08:50'},{d:'Sat',s:'Sahara',a:'Marlon Hoffstadt',t:'09:15-10:15'},{d:'Sat',s:'Sahara',a:'KATSEYE',t:'11:00-11:45'},{d:'Sat',s:'Sahara',a:'Levity',t:'12:15-13:20'},{d:'Sat',s:'Sahara',a:'Swae Lee',t:'13:50-14:40'},{d:'Sat',s:'Sahara',a:'Sexyy Red',t:'15:05-15:55'},
+        {d:'Sat',s:'Yuma',a:'Sahar Z',t:'04:00-04:45'},{d:'Sat',s:'Yuma',a:'Jessica Brankka',t:'04:45-05:45'},{d:'Sat',s:'Yuma',a:'Arodes',t:'05:45-06:45'},{d:'Sat',s:'Yuma',a:'Groove Armada',t:'06:45-07:45'},{d:'Sat',s:'Yuma',a:'Rossi. x Chloé Caillet',t:'07:45-09:00'},{d:'Sat',s:'Yuma',a:'Kettama',t:'09:00-10:15'},{d:'Sat',s:'Yuma',a:'Prospa',t:'10:15-11:30'},{d:'Sat',s:'Yuma',a:'Max Dean x Luke Dean',t:'11:30-12:45'},{d:'Sat',s:'Yuma',a:'Max Styler',t:'12:45-14:15'},{d:'Sat',s:'Yuma',a:'Gordo',t:'14:15-15:55'},
+        {d:'Sat',s:'Outdoor Theatre',a:'Tiffany Tyson',t:'05:50-06:50'},{d:'Sat',s:'Outdoor Theatre',a:'Dabeull',t:'07:00-07:50'},{d:'Sat',s:'Outdoor Theatre',a:'Lykke Li',t:'08:20-09:10'},{d:'Sat',s:'Outdoor Theatre',a:'Dijon',t:'09:40-10:30'},{d:'Sat',s:'Outdoor Theatre',a:'Turnstile',t:'11:05-12:00'},{d:'Sat',s:'Outdoor Theatre',a:'Disclosure',t:'13:35-14:50'},
+        {d:'Sat',s:'Coachella Stage',a:'Record Safari',t:'07:15-08:20'},{d:'Sat',s:'Coachella Stage',a:'Teddy Swims',t:'08:30-09:20'},{d:'Sat',s:'Coachella Stage',a:'The xx',t:'10:00-10:55'},{d:'Sat',s:'Coachella Stage',a:'Sabrina Carpenter',t:'12:05-13:35'},{d:'Sat',s:'Coachella Stage',a:'Anyma',t:'15:00-16:00'},
+        {d:'Sat',s:'Quasar',a:'Tiga',t:'08:00-10:00'},{d:'Sat',s:'Quasar',a:'Deep Dish',t:'10:00-12:00'},{d:'Sat',s:'Quasar',a:'PAWSA',t:'12:00-14:00'},
+
+        // SUNDAY HKT
+        {d:'Sun',s:'Sonora',a:'Triste Juventud',t:'04:00-05:00'},{d:'Sun',s:'Sonora',a:'Die Spitz',t:'05:00-05:40'},{d:'Sun',s:'Sonora',a:'Freak Slug',t:'06:10-06:50'},{d:'Sun',s:'Sonora',a:'Ecca Vandal',t:'07:20-08:00'},{d:'Sun',s:'Sonora',a:'Ceremony',t:'08:30-09:10'},{d:'Sun',s:'Sonora',a:'rusowsky',t:'09:40-10:20'},{d:'Sun',s:'Sonora',a:'54 Ultra',t:'10:50-11:30'},{d:'Sun',s:'Sonora',a:'Mind Enterprises',t:'12:45-13:35'},
+        {d:'Sun',s:'Gobi',a:'Noga Erez',t:'05:05-05:50'},{d:'Sun',s:'Gobi',a:'WHATMORE',t:'07:05-07:45'},{d:'Sun',s:'Gobi',a:'Luísa Sonza',t:'08:10-08:50'},{d:'Sun',s:'Gobi',a:'Geese',t:'09:15-10:00'},{d:'Sun',s:'Gobi',a:'Davido',t:'10:50-11:35'},{d:'Sun',s:'Gobi',a:'BIA',t:'12:00-12:45'},{d:'Sun',s:'Gobi',a:'Morat',t:'13:10-14:00'},
+        {d:'Sun',s:'Mojave',a:'Jack White',t:'06:00-06:45'},{d:'Sun',s:'Mojave',a:'Fujii Kaze',t:'07:30-08:20'},{d:'Sun',s:'Mojave',a:'Royel Otis',t:'08:50-09:35'},{d:'Sun',s:'Mojave',a:'Taemin',t:'10:30-11:20'},{d:'Sun',s:'Mojave',a:'PinkPantheress',t:'11:55-12:45'},{d:'Sun',s:'Mojave',a:'Interpol',t:'13:15-14:15'},
+        {d:'Sun',s:'Sahara',a:'Seek-One',t:'05:00-05:45'},{d:'Sun',s:'Sahara',a:'TEED',t:'05:50-06:50'},{d:'Sun',s:'Sahara',a:'ZULAN',t:'07:00-07:50'},{d:'Sun',s:'Sahara',a:'Hamdi',t:'08:00-08:55'},{d:'Sun',s:'Sahara',a:'¥ØU$UK€ ¥UK1MAT$U',t:'09:15-10:10'},{d:'Sun',s:'Sahara',a:'Nine Inch Noize',t:'11:00-11:45'},{d:'Sun',s:'Sahara',a:'REZZ',t:'12:10-13:05'},{d:'Sun',s:'Sahara',a:'Adriatique',t:'13:30-14:25'},{d:'Sun',s:'Sahara',a:'Worship',t:'14:55-15:55'},
+        {d:'Sun',s:'Yuma',a:'Yamagucci',t:'04:00-05:00'},{d:'Sun',s:'Yuma',a:'GENESI',t:'05:00-06:00'},{d:'Sun',s:'Yuma',a:'Riordan',t:'06:00-07:15'},{d:'Sun',s:'Yuma',a:'Mahmut Orhan',t:'07:15-08:30'},{d:'Sun',s:'Yuma',a:'Ben Sterling',t:'08:30-09:45'},{d:'Sun',s:'Yuma',a:'SOSA',t:'09:45-11:15'},{d:'Sun',s:'Yuma',a:'Bedouin',t:'11:15-12:45'},{d:'Sun',s:'Yuma',a:'Boys Noize',t:'12:45-14:00'},{d:'Sun',s:'Yuma',a:'Armin van Buuren x Adam Beyer',t:'14:00-15:55'},
+        {d:'Sun',s:'Outdoor Theatre',a:'Blondshell',t:'05:40-06:25'},{d:'Sun',s:'Outdoor Theatre',a:'Los Hermanos Flores',t:'06:55-07:45'},{d:'Sun',s:'Outdoor Theatre',a:'Alex G',t:'08:10-09:00'},{d:'Sun',s:'Outdoor Theatre',a:'SOMBR',t:'10:05-10:55'},{d:'Sun',s:'Outdoor Theatre',a:'Labrinth',t:'11:30-12:25'},{d:'Sun',s:'Outdoor Theatre',a:'David Byrne',t:'13:20-14:20'},
+        {d:'Sun',s:'Coachella Stage',a:'Jaqck Glam',t:'07:15-08:20'},{d:'Sun',s:'Coachella Stage',a:'Addison Rae',t:'08:30-09:20'},{d:'Sun',s:'Coachella Stage',a:'GIVEON',t:'10:00-10:50'},{d:'Sun',s:'Coachella Stage',a:'The Strokes',t:'12:00-13:10'},{d:'Sun',s:'Coachella Stage',a:'Justin Bieber',t:'14:25-15:45'},
+        {d:'Sun',s:'Quasar',a:'Joezi',t:'08:00-10:00'},{d:'Sun',s:'Quasar',a:'Afrojack x Shimza',t:'10:00-12:00'},{d:'Sun',s:'Quasar',a:'David Guetta',t:'12:00-14:00'},
+
+        // MONDAY HKT
+        {d:'Mon',s:'Sonora',a:'Panda & Chok',t:'04:00-05:00'},{d:'Mon',s:'Sonora',a:'Glitterer',t:'05:00-05:40'},{d:'Mon',s:'Sonora',a:'Model/Actriz',t:'06:10-06:50'},{d:'Mon',s:'Sonora',a:'Jane Remover',t:'07:20-08:00'},{d:'Mon',s:'Sonora',a:'Los Retros',t:'08:30-09:10'},{d:'Mon',s:'Sonora',a:'RØZ',t:'09:40-10:30'},{d:'Mon',s:'Sonora',a:'DRAIN',t:'11:00-11:40'},{d:'Mon',s:'Sonora',a:'French Police',t:'12:10-13:00'},
+        {d:'Mon',s:'Gobi',a:'floweryovlove',t:'05:05-05:35'},{d:'Mon',s:'Gobi',a:'The Chats',t:'06:00-06:40'},{d:'Mon',s:'Gobi',a:'COBRAH',t:'07:05-07:50'},{d:'Mon',s:'Gobi',a:'Oklou',t:'08:15-09:00'},{d:'Mon',s:'Gobi',a:'Black Flag',t:'09:30-10:05'},{d:'Mon',s:'Gobi',a:'TOMORA',t:'10:45-11:35'},{d:'Mon',s:'Gobi',a:'The Rapture',t:'12:05-12:55'},
+        {d:'Mon',s:'Mojave',a:'wyldeflower',t:'05:30-06:10'},{d:'Mon',s:'Mojave',a:'Samia',t:'06:15-06:55'},{d:'Mon',s:'Mojave',a:'Little Simz',t:'07:25-08:10'},{d:'Mon',s:'Mojave',a:'Suicidal Tendencies',t:'08:35-09:25'},{d:'Mon',s:'Mojave',a:'Iggy Pop',t:'10:10-11:10'},{d:'Mon',s:'Mojave',a:'FKA twigs',t:'11:45-13:00'},
+        {d:'Mon',s:'Sahara',a:'LOBOMAN',t:'05:30-06:30'},{d:'Mon',s:'Sahara',a:'Girl Math',t:'06:35-07:35'},{d:'Mon',s:'Sahara',a:'BUNT.',t:'07:45-08:45'},{d:'Mon',s:'Sahara',a:'Duke Dumont',t:'09:10-10:10'},{d:'Mon',s:'Sahara',a:'Mochakk',t:'10:25-11:25'},{d:'Mon',s:'Sahara',a:'Subtronics',t:'12:05-13:05'},{d:'Mon',s:'Sahara',a:'Kaskade',t:'13:45-14:55'},
+        {d:'Mon',s:'Yuma',a:'LE YORA',t:'04:00-05:00'},{d:'Mon',s:'Yuma',a:'AZZECCA',t:'05:00-06:00'},{d:'Mon',s:'Yuma',a:'&friends',t:'06:00-07:15'},{d:'Mon',s:'Yuma',a:'MËSTIZA',t:'07:15-08:30'},{d:'Mon',s:'Yuma',a:'Carlita x Josh Baker',t:'08:30-10:00'},{d:'Mon',s:'Yuma',a:'Röyksopp',t:'10:00-11:30'},{d:'Mon',s:'Yuma',a:'WhoMadeWho',t:'11:30-13:00'},{d:'Mon',s:'Yuma',a:'Green Velvet x AYYBO',t:'13:00-14:55'},
+        {d:'Mon',s:'Outdoor Theatre',a:'Juicewon',t:'06:00-06:50'},{d:'Mon',s:'Outdoor Theatre',a:'Gigi Perez',t:'07:00-07:45'},{d:'Mon',s:'Outdoor Theatre',a:'CLIPSE',t:'08:15-09:10'},{d:'Mon',s:'Outdoor Theatre',a:'Foster the People',t:'09:45-10:40'},{d:'Mon',s:'Outdoor Theatre',a:'Laufey',t:'11:40-12:40'},{d:'Mon',s:'Outdoor Theatre',a:'BIGBANG',t:'13:30-14:30'},
+        {d:'Mon',s:'Coachella Stage',a:'Gabe Real',t:'05:45-06:30'},{d:'Mon',s:'Coachella Stage',a:'Tijuana Panthers',t:'06:40-07:15'},{d:'Mon',s:'Coachella Stage',a:'Wet Leg',t:'07:45-08:30'},{d:'Mon',s:'Coachella Stage',a:'Major Lazer',t:'09:10-10:10'},{d:'Mon',s:'Coachella Stage',a:'Young Thug',t:'10:50-11:40'},{d:'Mon',s:'Coachella Stage',a:'Karol G',t:'12:55-14:15'},
+        {d:'Mon',s:'Quasar',a:'Jazzy',t:'07:00-09:00'},{d:'Mon',s:'Quasar',a:'JOY (Anonymous)',t:'09:00-11:00'},{d:'Mon',s:'Quasar',a:'Fatboy Slim',t:'11:00-13:00'}
+    ];
+
+    function parseTime(tStr) { const [h, m] = tStr.split(':').map(Number); return h * 60 + m; }
+    function getStartEndMins(timeRangeStr) {
+        const [start, end] = timeRangeStr.split('-').map(s => s.trim());
+        return { start: parseTime(start), end: parseTime(end) };
+    }
+
+    let currentDay = 'Sat';
+    let wishlist = new Set(JSON.parse(localStorage.getItem('coachella26_vFinal')) || []);
+    let selectedArtistId = null;
+
+    function renderSchedule(day) {
+        const container = document.getElementById('schedule-container');
+        container.innerHTML = '';
+        if (wishlist.size > 0) container.classList.add('has-wishlist'); else container.classList.remove('has-wishlist');
+
+        const corner = document.createElement('div');
+        corner.className = 'time-header-corner';
+        container.appendChild(corner);
+
+        STAGES.forEach((stage, idx) => {
+            const div = document.createElement('div');
+            div.className = 'stage-header';
+            div.textContent = stage;
+            div.style.gridColumn = idx + 2; div.style.gridRow = 1;
+            container.appendChild(div);
+        });
+
+        const totalMins = (GRID_END_HOUR - GRID_START_HOUR) * 60;
+        container.style.gridTemplateRows = HEADER_HT + "px repeat(" + (totalMins/5) + ", " + (5 * PIXELS_PER_MIN) + "px)";
+
+        for(let h = GRID_START_HOUR; h < GRID_END_HOUR; h++) {
+            [0, 30].forEach(m => {
+                const rowStart = Math.floor(((h * 60 + m) - (GRID_START_HOUR * 60)) / 5) + 2;
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'time-slot';
+                timeDiv.innerHTML = "<span>" + h + ":" + m.toString().padStart(2, '0') + "</span>";
+                timeDiv.style.gridColumn = 1; timeDiv.style.gridRow = rowStart + " / span 6";
+                container.appendChild(timeDiv);
+                const line = document.createElement('div');
+                line.className = 'grid-line'; line.style.gridRow = rowStart;
+                container.appendChild(line);
+            });
+        }
+
+        rawData.filter(function(i) { return i.d === day; }).forEach(function(item) {
+            const range = getStartEndMins(item.t);
+            const startOffset = range.start - (GRID_START_HOUR * 60);
+            if (startOffset < 0) return;
+            const rowStart = Math.floor(startOffset / 5) + 2;
+            const span = Math.ceil((range.end - range.start) / 5);
+            const id = item.d + "-" + item.a;
+
+            const div = document.createElement('div');
+            div.className = 'artist-block';
+            if (wishlist.has(id)) div.classList.add('wishlisted');
+            div.style.gridColumn = STAGES.indexOf(item.s) + 2;
+            div.style.gridRow = rowStart + " / span " + span;
+            div.innerHTML = '<div class="artist-time">' + item.t + '</div>' + item.a;
+            div.onclick = function() { openModal(item, id); };
+            container.appendChild(div);
+        });
+    }
+
+    function openModal(item, id) {
+        selectedArtistId = id;
+        document.getElementById('m-artist').textContent = item.a;
+        document.getElementById('m-info').textContent = item.s + " • HKT " + item.t;
+        document.getElementById('btn-spotify').href = "https://open.spotify.com/search/$" + encodeURIComponent(item.a);
+        const wlBtn = document.getElementById('btn-wishlist');
+        if (wishlist.has(id)) { wlBtn.textContent = "Remove from My Schedule"; wlBtn.classList.add('remove'); } 
+        else { wlBtn.textContent = "Add to My Schedule"; wlBtn.classList.remove('remove'); }
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    function toggleCurrentWishlist() {
+        if (wishlist.has(selectedArtistId)) wishlist.delete(selectedArtistId);
+        else wishlist.add(selectedArtistId);
+        localStorage.setItem('coachella26_vFinal', JSON.stringify(Array.from(wishlist)));
+        renderSchedule(currentDay);
+        closeModal();
+    }
+
+    function clearWishlist() {
+        if(confirm("Clear your custom schedule?")) {
+            wishlist.clear(); localStorage.setItem('coachella26_vFinal', '[]'); renderSchedule(currentDay);
+        }
+    }
+
+    function updateTimeLine() {
+        const now = new Date();
+        const mins = now.getHours() * 60 + now.getMinutes();
+        const offset = mins - (GRID_START_HOUR * 60);
+        const line = document.getElementById('current-time-line');
+        if (offset >= 0 && offset <= (GRID_END_HOUR - GRID_START_HOUR) * 60) {
+            line.style.display = 'block'; line.style.top = (HEADER_HT + offset * PIXELS_PER_MIN) + "px";
+        } else { line.style.display = 'none'; }
+    }
+
+    function switchDay(day) {
+        currentDay = day;
+        var tabs = document.querySelectorAll('.tab');
+        for(var i=0; i<tabs.length; i++) { tabs[i].classList.toggle('active', tabs[i].textContent.indexOf(day) !== -1); }
+        renderSchedule(day);
+        updateTimeLine();
+    }
+
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'short' });
+    switchDay(['Sat','Sun','Mon'].indexOf(today) !== -1 ? today : 'Sat');
+    setInterval(updateTimeLine, 60000);
+</script></body></html>
